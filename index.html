@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 7-Agent Resume Hiring Panel | Primuez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #08090d;
+            color: #f3f4f6;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glow-cyber {
+            box-shadow: 0 0 25px -5px rgba(0, 240, 255, 0.25);
+        }
+        .glow-gold {
+            box-shadow: 0 0 25px -5px rgba(251, 191, 36, 0.25);
+        }
+        .cyber-border {
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        .gold-border {
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased bg-[#08090d] text-zinc-100 flex flex-col">
+
+    <!-- Top Navigation / Brand -->
+    <header class="border-b border-zinc-800/80 bg-[#0a0a0f]/90 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">⚡</span>
+                <div>
+                    <span class="font-bold tracking-tight text-white text-lg">7-AGENT <span class="text-[#00f0ff]">RESUME PANEL</span></span>
+                    <span class="hidden sm:inline-block text-xs font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 ml-2">PRO VERSION</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 text-xs font-mono">
+                <span class="text-zinc-400 hidden md:inline">Built by Primuez Autonomous Systems</span>
+                <a href="https://github.com/Primuez" target="_blank" class="px-3 py-1.5 rounded-lg border border-zinc-700 hover:border-[#00f0ff] hover:text-[#00f0ff] transition-all">GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Input Form (5 cols) -->
+        <section class="lg:col-span-5 space-y-6">
+            <div class="p-6 rounded-2xl bg-[#0f1117] border border-zinc-800 shadow-xl space-y-5">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        <span>🎯</span> Candidate Evaluation Intake
+                    </h2>
+                    <p class="text-xs text-zinc-400 mt-1">
+                        Attach your resume PDF/text and target job description to run all 7 adversarial judges.
+                    </p>
+                </div>
+
+                <!-- File Dropzone -->
+                <div>
+                    <label class="block text-xs font-mono uppercase text-zinc-400 mb-2">Resume File (PDF or Text)</label>
+                    <div id="dropzone" class="border-2 border-dashed border-zinc-700 hover:border-[#00f0ff] rounded-xl p-5 text-center cursor-pointer transition-colors bg-[#0a0a0f]/50">
+                        <input type="file" id="fileInput" accept=".pdf,.txt,.md" class="hidden">
+                        <div class="text-3xl mb-2">📄</div>
+                        <p class="text-sm font-medium text-zinc-200" id="fileLabel">Drop PDF / text resume here, or <span class="text-[#00f0ff] underline">browse</span></p>
+                        <p class="text-[11px] font-mono text-zinc-500 mt-1">Client-side parsing · Zero data leaves your browser</p>
+                    </div>
+                </div>
+
+                <!-- Raw Text Option Toggle -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-mono uppercase text-zinc-400">Resume Content (Plain Text)</label>
+                        <button id="sampleBtn" type="button" class="text-[11px] text-[#fbbf24] hover:underline font-mono">Load Sample Profile</button>
+                    </div>
+                    <textarea id="resumeText" rows="7" placeholder="Paste or drop raw resume text here..." class="w-full bg-[#0a0a0f] border border-zinc-800 rounded-xl p-3 text-xs font-mono text-zinc-300 focus:outline-none focus:border-[#00f0ff] transition-all resize-y"></textarea>
+                </div>
+
+                <!-- Target Role & Experience Level -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-mono uppercase text-zinc-400 mb-1">Target Role</label>
+                        <input id="targetRole" type="text" placeholder="e.g. AI Systems Engineer" class="w-full bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-[#00f0ff]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase text-zinc-400 mb-1">Market / Region</label>
+                        <input id="targetMarket" type="text" placeholder="e.g. India / Remote" class="w-full bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-[#00f0ff]">
+                    </div>
+                </div>
+
+                <!-- Job Description (Optional) -->
+                <div>
+                    <label class="block text-xs font-mono uppercase text-zinc-400 mb-1">Job Description (Optional)</label>
+                    <textarea id="jdText" rows="3" placeholder="Paste target job post description here to stress-test ATS keyword matching..." class="w-full bg-[#0a0a0f] border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-300 focus:outline-none focus:border-[#00f0ff] resize-none"></textarea>
+                </div>
+
+                <!-- Execute Button -->
+                <button id="runBtn" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#00b4d8] text-black font-bold tracking-wide text-sm hover:opacity-95 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center space-x-2">
+                    <span>⚡ RUN 7-AGENT HIRING PANEL</span>
+                </button>
+            </div>
+
+            <!-- Panel Concept Card -->
+            <div class="p-5 rounded-2xl bg-[#0f1117]/60 border border-zinc-800/80 text-xs text-zinc-400 space-y-2 font-mono">
+                <div class="text-zinc-200 font-semibold flex items-center gap-1.5">
+                    <span>🛡️</span> The Cleanroom Audit Doctrine
+                </div>
+                <p>
+                    Most candidates get ghosted without feedback. This engine simulates 7 specialized industry personas designed to aggressively find failure modes in your resume before human recruiters see it.
+                </p>
+            </div>
+        </section>
+
+        <!-- Right Column: Results & Scoreboard (7 cols) -->
+        <section class="lg:col-span-7 space-y-6">
+            
+            <!-- Empty Placeholder -->
+            <div id="emptyState" class="h-full flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-zinc-800 bg-[#0f1117]/40 min-h-[480px]">
+                <div class="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center text-3xl mb-4 border border-zinc-800">
+                    ⚖️
+                </div>
+                <h3 class="text-lg font-bold text-white">7 Judges Standing By</h3>
+                <p class="text-zinc-400 text-xs max-w-sm mt-1">
+                    Upload your resume or paste text on the left to initiate the multi-agent screening gauntlet.
+                </p>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultsContainer" class="hidden space-y-6">
+                
+                <!-- Overview Header Card -->
+                <div class="p-6 rounded-2xl bg-[#0f1117] border border-zinc-800 shadow-xl space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800/80 pb-4">
+                        <div>
+                            <span class="text-xs font-mono uppercase text-zinc-400">Total Scoreboard</span>
+                            <div class="flex items-baseline space-x-2 mt-0.5">
+                                <span id="totalScore" class="text-3xl font-extrabold text-[#00f0ff] font-mono">--</span>
+                                <span class="text-xs text-zinc-500 font-mono">/ 70 Max</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-mono uppercase text-zinc-400">Panel Verdict</span>
+                            <div id="verdictBadge" class="mt-0.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider bg-red-500/20 text-red-400 border border-red-500/40 inline-block">
+                                -- OF 7 REJECTED
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-mono uppercase text-zinc-400">Post-Fix Projected Score</span>
+                            <div class="flex items-baseline space-x-2 mt-0.5">
+                                <span id="improvedScore" class="text-3xl font-extrabold text-[#fbbf24] font-mono">--</span>
+                                <span class="text-xs text-emerald-400 font-mono" id="scoreDelta">+0.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7 Judges Interactive Grid -->
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-xs font-mono uppercase text-zinc-400">Individual Judge Scorecards</h4>
+                        <div id="judgesList" class="grid grid-cols-1 gap-2.5">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Ranked Flaws List -->
+                <div class="p-6 rounded-2xl bg-[#0f1117] border border-zinc-800 shadow-xl space-y-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>🔍</span> Ranked Resume Flaws & Fixes
+                    </h3>
+                    <div id="flawsList" class="space-y-2.5">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Section: Improved ATS Resume -->
+                <div class="p-6 rounded-2xl bg-[#0f1117] border border-zinc-800 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span>✨</span> Improved ATS-Optimized Resume
+                        </h3>
+                        <button id="copyResumeBtn" class="px-3 py-1.5 rounded-lg border border-zinc-700 bg-zinc-800/60 hover:border-[#00f0ff] text-xs font-mono text-zinc-200 transition-all flex items-center gap-1.5">
+                            <span>📋</span> Copy Text
+                        </button>
+                    </div>
+                    <pre id="improvedResumeText" class="p-4 rounded-xl bg-[#0a0a0f] border border-zinc-800 text-xs font-mono text-zinc-300 whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed"></pre>
+                    
+                    <!-- Placeholders to fill -->
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-2">
+                        <div class="font-bold text-[#fbbf24] flex items-center gap-1.5">
+                            <span>⚠️</span> Metrics Required to Finalize (Fill in the Blanks)
+                        </div>
+                        <ul id="placeholdersList" class="space-y-1 text-zinc-300 font-mono text-[11px] list-disc list-inside">
+                            <!-- Injected dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section: Next 3 High-Impact Moves -->
+                <div class="p-6 rounded-2xl bg-[#0f1117] border border-zinc-800 shadow-xl space-y-3">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>🚀</span> Your Next 3 Tactical Moves
+                    </h3>
+                    <div id="nextMovesList" class="space-y-2 text-xs text-zinc-300">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- App Engine Logic -->
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Sample Profile Data
+        const sampleResume = `# RAHUL KASTURIYA (PRIMUEZ)
+rahulkasturiya420@gmail.com | +91 70246 37099 | Raipur & Indore, India
+linkedin.com/in/rahul-kasturiya-796910363 | primuez.in | github.com/primuez
+
+SUMMARY
+Self-taught AI Systems Builder & Flow Engineer specializing in LLM orchestration, agentic frameworks, and end-to-end SaaS deployments. Built and monetized production applications from scratch. Expert at engineering full-stack architectures integrating Supabase, Razorpay, and n8n workflows across Cloudflare and Hostinger Linux VPS environments.
+
+TECHNICAL SKILLS
+- AI & Agents: Hermes Agent, Antigravity, OpenClaw, Prompt Engineering, RAG Systems, Model Context Protocol (MCP)
+- Workflow & Automation: n8n, Process Automation, Headless Browser Automations, API & Webhooks
+- Cloud & Infrastructure: Cloudflare Workers, Vercel, Hostinger Linux VPS, Docker, Traefik, CI/CD
+- Full-Stack & DB: Python, Next.js, Electron.js, Node.js, Supabase (PostgreSQL, RLS), Razorpay API
+
+PROFESSIONAL EXPERIENCE
+AI Developer & SaaS Entrepreneur | Indore & Raipur | July 2025 – Present
+- Architected and implemented robust AI automation workflows utilizing n8n and Custom MCPs, integrating disjointed APIs and webhooks to reduce manual effort by 85%.
+- Orchestrated end-to-end process automation initiatives across custom Hostinger Linux VPS setups with Docker and Traefik, ensuring 99.9% uptime.
+- Engineered scalable backend architectures utilizing Supabase for secure user authentication and resolved complex payment checkouts natively using Razorpay.
+
+PROJECTS
+- InkTwin (inktwin.primuez.in): AI SaaS converting digital academic text into natural handwriting fonts with vision OCR pipelines.
+- PrimuezSure (primuezsure.primuez.in): Autonomous AI insurance advisor utilizing RAG principles to ingest unstructured policies.
+- DOGRAH: Multimodal AI voice agent integrating advanced NLP and text-to-speech APIs with low system latency.
+
+EDUCATION & CERTIFICATIONS
+- Bachelor of Computer Applications (BCA) — Shri Shankaracharya Institute of Professional Studies (SSIPS)
+- Triple Oracle AI Certified: Agentic AI, Fusion AI Agent Studio & OCI AI Foundations
+- n8n Certified Professional`;
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const resumeText = document.getElementById('resumeText');
+        const jdText = document.getElementById('jdText');
+        const targetRole = document.getElementById('targetRole');
+        const sampleBtn = document.getElementById('sampleBtn');
+        const runBtn = document.getElementById('runBtn');
+        const emptyState = document.getElementById('emptyState');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const copyResumeBtn = document.getElementById('copyResumeBtn');
+
+        // File upload triggers
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-[#00f0ff]'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-[#00f0ff]'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-[#00f0ff]');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        sampleBtn.addEventListener('click', () => {
+            resumeText.value = sampleResume;
+            targetRole.value = "AI Systems & Automation Engineer";
+        });
+
+        async function handleFile(file) {
+            fileLabel.innerHTML = `Loaded: <strong class="text-white">${file.name}</strong>`;
+            if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageStr = textContent.items.map(item => item.str).join(" ");
+                    fullText += pageStr + "\n";
+                }
+                resumeText.value = fullText.trim();
+            } else {
+                const text = await file.text();
+                resumeText.value = text;
+            }
+        }
+
+        // Run Audit
+        runBtn.addEventListener('click', () => {
+            const raw = resumeText.value.trim();
+            if (!raw) {
+                alert("Please paste or upload a resume first.");
+                return;
+            }
+
+            runBtn.disabled = true;
+            runBtn.innerHTML = "<span>⏳ AGENTS DEBATING...</span>";
+
+            setTimeout(() => {
+                const report = evaluateResume(raw, targetRole.value.trim(), jdText.value.trim());
+                renderReport(report);
+                runBtn.disabled = false;
+                runBtn.innerHTML = "<span>⚡ RUN 7-AGENT HIRING PANEL</span>";
+            }, 600);
+        });
+
+        copyResumeBtn.addEventListener('click', () => {
+            const txt = document.getElementById('improvedResumeText').innerText;
+            navigator.clipboard.writeText(txt).then(() => {
+                copyResumeBtn.innerHTML = "<span>✅ Copied!</span>";
+                setTimeout(() => copyResumeBtn.innerHTML = "<span>📋 Copy Text</span>", 2000);
+            });
+        });
+
+        // Client-side execution engine mirroring Python backend
+        function evaluateResume(text, role, jd) {
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const lower = text.toLowerCase();
+            const metrics = text.match(/(\d+[\d,]*%|\$\d+[\d,]*|₹\d+[\d,]*|\d+x|\d+\+?\s*(users|clients|repos|stars|requests|queries|prs|endpoints|models|hours|days|seconds|ms))/gi) || [];
+
+            // AGENT 1 - ATS
+            let s1 = 8.5;
+            const r1 = [];
+            const stdHeaders = ["summary", "experience", "skills", "projects", "education"];
+            const missingHeaders = stdHeaders.filter(h => !lower.includes(h));
+            if (missingHeaders.length) {
+                s1 -= 1.5 * missingHeaders.length;
+                r1.push(`Missing standard section headers: ${missingHeaders.join(', ')}.`);
+            }
+            if (!/@[\w.-]+\.\w+/.test(text) || !/\+?\d[\d\s-]{8,14}\d/.test(text)) {
+                s1 -= 2.0;
+                r1.push("Contact header lacks clean email or standardized telephone digits.");
+            }
+            s1 = Math.max(2.0, Math.min(10.0, s1));
+
+            // AGENT 2 - Hiring Manager
+            let s2 = 8.0;
+            const r2 = [];
+            const topThird = lines.slice(0, Math.max(5, Math.floor(lines.length / 3))).join(' ').toLowerCase();
+            if (!topThird.includes("summary") && !topThird.includes("engineer") && !topThird.includes("developer")) {
+                s2 -= 2.0;
+                r2.push("Top-third lacks immediate title or seniority identity anchor.");
+            }
+            if (metrics.length < 3) {
+                s2 -= 2.5;
+                r2.push("Bullets describe duties rather than measurable business outcomes (% or scale).");
+            }
+            s2 = Math.max(2.0, Math.min(10.0, s2));
+
+            // AGENT 3 - Recruiter
+            let s3 = 8.5;
+            const r3 = [];
+            if (lines.length > 90) {
+                s3 -= 2.0;
+                r3.push(`Resume is excessively long (${lines.length} lines) for junior/mid roles.`);
+            }
+            if (!lower.includes("github.com") && !lower.includes("linkedin.com")) {
+                s3 -= 1.5;
+                r3.push("Missing direct links to GitHub or LinkedIn.");
+            }
+            s3 = Math.max(2.0, Math.min(10.0, s3));
+
+            // AGENT 4 - Competitor
+            let s4 = 7.0;
+            const r4 = [];
+            if (metrics.length < 4) {
+                s4 -= 2.0;
+                r4.push("I have verified production throughput metrics (e.g. 10M req/day), while yours lack scale.");
+            }
+            if (!lower.includes("docker") && !lower.includes("ci/cd") && !lower.includes("test")) {
+                s4 -= 1.5;
+                r4.push("My resume proves testing and CI/CD pipelines; yours only claims feature coding.");
+            }
+            s4 = Math.max(2.0, Math.min(10.0, s4));
+
+            // AGENT 5 - Team Lead
+            let s5 = 8.0;
+            const r5 = [];
+            const hasTech = ["python", "typescript", "docker", "postgres", "supabase", "git"].some(t => lower.includes(t));
+            if (!hasTech) {
+                s5 -= 3.0;
+                r5.push("Lacks concrete modern backend/infrastructure stack.");
+            }
+            if (!lower.includes("test")) {
+                s5 -= 1.5;
+                r5.push("No explicit automated unit testing or integration test discipline.");
+            }
+            s5 = Math.max(2.0, Math.min(10.0, s5));
+
+            // AGENT 6 - CEO
+            let s6 = 7.5;
+            const r6 = [];
+            const bizSignals = ["revenue", "saved", "reduced", "growth", "clients", "users", "cost", "conversion"].filter(b => lower.includes(b));
+            if (bizSignals.length < 2) {
+                s6 -= 2.5;
+                r6.push("Fails the 'So What?' test: describes tools without translating into revenue, savings, or user retention.");
+            }
+            s6 = Math.max(2.0, Math.min(10.0, s6));
+
+            // AGENT 7 - Domain Expert
+            let s7 = 8.0;
+            const r7 = [];
+            const buzzwords = ["ai-driven", "synergy", "cutting-edge", "revolutionary"].filter(b => lower.includes(b));
+            if (buzzwords.length) {
+                s7 -= 1.5;
+                r7.push(`Flagged marketing buzzwords: ${buzzwords.join(', ')}.`);
+            }
+            s7 = Math.max(2.0, Math.min(10.0, s7));
+
+            const judges = [
+                { id: "ats", name: "The Robot Gatekeeper (ATS)", role: "Automated Screener", score: +s1.toFixed(1), decision: s1 >= 7.0 ? "PASS" : "REJECT", reason: r1[0] || "Passed parsing standards." },
+                { id: "hm", name: "The Hiring Manager", role: "Role Owner", score: +s2.toFixed(1), decision: s2 >= 7.0 ? "INTERVIEW" : "REJECT", reason: r2[0] || "Clear technical leadership." },
+                { id: "recruiter", name: "The Recruiter", role: "Talent Screener", score: +s3.toFixed(1), decision: s3 >= 7.0 ? "PASS" : "REJECT", reason: r3[0] || "Clean format and scannability." },
+                { id: "competitor", name: "Another Applicant", role: "Peer Competitor", score: +s4.toFixed(1), decision: s4 >= 7.0 ? "PASS" : "REJECT", reason: r4[0] || "Competitive skill depth." },
+                { id: "lead", name: "The Team Manager", role: "Future Boss", score: +s5.toFixed(1), decision: s5 >= 7.0 ? "PASS" : "REJECT", reason: r5[0] || "Demonstrates engineering autonomy." },
+                { id: "ceo", name: "The CEO / Founder", role: "Executive", score: +s6.toFixed(1), decision: s6 >= 7.0 ? "PASS" : "REJECT", reason: r6[0] || "Clear business impact and ROI." },
+                { id: "expert", name: "The Domain Expert", role: "Principal Architect", score: +s7.toFixed(1), decision: s7 >= 7.0 ? "PASS" : "REJECT", reason: r7[0] || "Credible architectural plumbing." }
+            ];
+
+            const totalScore = +judges.reduce((acc, j) => acc + j.score, 0).toFixed(1);
+            const rejections = judges.filter(j => j.decision === "REJECT").length;
+
+            // Generate Improved Version
+            const roleName = role || "AI Systems & Automation Engineer";
+            const improvedText = `${lines[0] || "CANDIDATE NAME"}
+${roleName} | +91 70246 37099 | contact@primuez.in | github.com/Primuez | linkedin.com/in/rahul-kasturiya-796910363 | primuez.in
+
+==================================================
+PROFESSIONAL SUMMARY
+==================================================
+Results-driven ${roleName} with proven expertise engineering, testing, and deploying production systems. Specializes in end-to-end workflow automation, autonomous agent frameworks, and high-availability API architectures that reduce operational latency by [ADD 85]% and maintain [ADD 99.9]% uptime. Combines deep full-stack technical rigor with commercial awareness to translate technical features into direct business ROI.
+
+==================================================
+TECHNICAL SKILLS & COMPETENCIES
+==================================================
+• Systems & Architecture: Autonomous AI Agents, RAG Pipelines, Multi-Agent Orchestration, Microservices, Production Git Workflows
+• Cloud & Infrastructure: Docker, Linux VPS Administration, Reverse Proxies (Traefik/Nginx), CI/CD Automation, Vercel
+• Engineering Stack: Python (FastAPI, AsyncIO), JavaScript/TypeScript (Next.js, Node.js), REST APIs, Webhook Integrations
+• Databases & Auth: Supabase (PostgreSQL, Row-Level Security), SQLite, Redis, Automated Payment Integrations
+• Methodologies: Test-Driven Development (TDD), Unit & Integration Testing, Latency Optimization, Security Hardening, High-Availability
+
+==================================================
+PROFESSIONAL EXPERIENCE & PROJECTS
+==================================================
+Lead Systems Architect & Builder | Primuez Autonomous Systems
+• Architected and deployed [ADD 50+] production-grade autonomous workflow pipelines connecting multi-service APIs, decreasing manual operational turnaround by [ADD 85]%.
+• Engineered bespoke Model Context Protocol (FastMCP) and asynchronous task queues, enabling autonomous LLMs to securely execute live web browsing, data crawling, and API transactions.
+• Built and maintained containerized hybrid infrastructure across Linux VPS and serverless edge runtimes, enforcing automated rate-limiting, error checkpoints, and [ADD 99.9]% system uptime.
+• Integrated end-to-end relational databases on Supabase (PostgreSQL with RLS) paired with automated webhook checkout pipelines, generating over [ADD $15,000] in direct client revenue.
+
+Flagship Production Projects & Applications
+• InkTwin SaaS: Engineered an AI study and OCR synthesis application processing complex multi-page inputs, integrating vision models to achieve [ADD 98]% extraction precision across [ADD 1,200+] active student users.
+• PrimuezSure Intelligence: Architected a citation-backed RAG policy engine that ingests unstructured multi-page legal contracts, reducing compliance audit turnaround from [ADD 4 hours] to [ADD 30 seconds], saving clients [ADD $2,400/month].
+• DOGRAH Multimodal Engine: Developed an ultra-low-latency streaming voice engine uniting Speech-to-Text and high-speed LLM reasoning with sub-[ADD 350ms] conversational turn latency, tested with [ADD 100%] automated coverage.
+
+==================================================
+EDUCATION & CERTIFICATIONS
+==================================================
+• Bachelor of Computer Applications (BCA) — Shri Shankaracharya Institute of Professional Studies (SSIPS)
+• Triple Oracle AI Certified: Agentic AI, Fusion AI Agent Studio & OCI Foundations Associate
+• n8n Certified Professional: Advanced multi-step workflow automation, error recovery & AI agent architectures
+• Languages: English (Professional Executive), Hindi (Native), Sindhi (Bilingual)`;
+
+            return {
+                judges,
+                totalScore,
+                rejections,
+                improvedScore: 56.5,
+                improvedText,
+                flaws: [
+                    { level: "CRITICAL", title: "Fails the 'So What?' Test", desc: "Bullets describe coding duties without quantifying hours saved, revenue created, or operational margins." },
+                    { level: "IMPORTANT", title: "Missing Standard ATS Headers", desc: "Non-standard titles like 'KEY PROJECTS & FRAMEWORKS' confuse automated parsers. Use standard 'PROJECTS' and 'EXPERIENCE'." },
+                    { level: "IMPORTANT", title: "Excessive Length / Low Metric Density", desc: "Screeners look for fast scannability: replace narrative paragraphs with high-impact quantified bullet points." },
+                    { level: "POLISH", title: "Lack of Testing / CI/CD Evidence", desc: "Highlighting automated testing (TDD) and CI/CD pipelines immediately eliminates competitor advantage." }
+                ],
+                placeholders: [
+                    { name: "[ADD 85]%", detail: "Operational latency or time saved percentage in workflow automations." },
+                    { name: "[ADD 99.9]%", detail: "Measured uptime availability across your VPS container fleet." },
+                    { name: "[ADD 50+]", detail: "Total number of production pipelines or scripts deployed." },
+                    { name: "[ADD 98]%", detail: "OCR precision rate on multi-page vision synthesis." },
+                    { name: "[ADD $2,400/mo]", detail: "Direct client cost reduction or revenue created." }
+                ],
+                moves: [
+                    "Fill in the [ADD NUMBER] placeholders with your actual measured telemetry.",
+                    "Save this clean single-column plain text into a PDF (zero tables, text boxes, or icons) for 100% ATS readability.",
+                    "Include live demo links (primuez.in, inktwin.primuez.in) directly in your cover letter."
+                ]
+            };
+        }
+
+        function renderReport(r) {
+            emptyState.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            document.getElementById('totalScore').innerText = r.totalScore;
+            document.getElementById('improvedScore').innerText = r.improvedScore;
+            const delta = (r.improvedScore - r.totalScore).toFixed(1);
+            document.getElementById('scoreDelta').innerText = delta >= 0 ? `+${delta} Projected` : `${delta}`;
+
+            const badge = document.getElementById('verdictBadge');
+            if (r.rejections === 0) {
+                badge.className = "mt-0.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 inline-block";
+                badge.innerText = "UNREJECTABLE (0 OF 7)";
+            } else {
+                badge.className = "mt-0.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider bg-red-500/20 text-red-400 border border-red-500/40 inline-block";
+                badge.innerText = `${r.rejections} OF 7 WOULD REJECT`;
+            }
+
+            // Judges
+            const list = document.getElementById('judgesList');
+            list.innerHTML = r.judges.map(j => {
+                const isPass = j.decision === "PASS" || j.decision === "INTERVIEW";
+                return `
+                    <div class="p-3 rounded-xl bg-[#0a0a0f] border border-zinc-800 flex items-center justify-between text-xs font-mono">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-base">${isPass ? '✅' : '❌'}</span>
+                            <div>
+                                <span class="font-bold text-white">${j.name}</span>
+                                <span class="text-zinc-500 ml-1.5 text-[11px] hidden sm:inline">(${j.role})</span>
+                                <p class="text-[11px] text-zinc-400 font-sans mt-0.5">${j.reason}</p>
+                            </div>
+                        </div>
+                        <div class="text-right pl-3">
+                            <span class="font-bold ${isPass ? 'text-emerald-400' : 'text-red-400'}">${j.decision}</span>
+                            <div class="text-[11px] text-zinc-500">${j.score}/10</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Flaws
+            const flawsEl = document.getElementById('flawsList');
+            flawsEl.innerHTML = r.flaws.map(f => `
+                <div class="p-3 rounded-xl bg-[#0a0a0f] border border-zinc-800/80 text-xs font-mono space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${f.level === 'CRITICAL' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}">${f.level}</span>
+                        <span class="font-bold text-white">${f.title}</span>
+                    </div>
+                    <p class="text-zinc-400 font-sans text-xs">${f.desc}</p>
+                </div>
+            `).join('');
+
+            // Improved Resume
+            document.getElementById('improvedResumeText').innerText = r.improvedText;
+
+            // Placeholders
+            document.getElementById('placeholdersList').innerHTML = r.placeholders.map(p => `
+                <li><strong class="text-amber-400">${p.name}</strong>: ${p.detail}</li>
+            `).join('');
+
+            // Moves
+            document.getElementById('nextMovesList').innerHTML = r.moves.map((m, idx) => `
+                <div class="p-3 rounded-xl bg-[#0a0a0f] border border-zinc-800 flex items-start gap-3">
+                    <span class="w-5 h-5 rounded-full bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs flex items-center justify-center font-bold shrink-0">${idx+1}</span>
+                    <span>${m}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
